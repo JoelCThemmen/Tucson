@@ -1,0 +1,1621 @@
+openapi: 3.0.3
+info:
+  title: Real Estate Investment Platform API
+  description: |
+    RESTful API for the Real Estate Investment Platform supporting property management,
+    virtual tours, investment tracking, renovation progress, and investor communications.
+  version: 2.0.0
+  contact:
+    name: API Support
+    email: api@investorplatform.com
+  license:
+    name: Proprietary
+    
+servers:
+  - url: https://api.realestateinvest.com/v1
+    description: Production server
+  - url: https://staging-api.realestateinvest.com/v1
+    description: Staging server
+  - url: http://localhost:3000/v1
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User profile and verification management
+  - name: Properties
+    description: Property listings and details
+  - name: Investments
+    description: Property investments and portfolio management
+  - name: VirtualTours
+    description: Matterport and virtual tour management
+  - name: Renovations
+    description: Renovation projects and progress tracking
+  - name: Financials
+    description: Property financials and performance metrics
+  - name: Events
+    description: Property tours and investor events
+  - name: Documents
+    description: Property documents and reports
+  - name: Communications
+    description: Property updates and notifications
+
+paths:
+  # Authentication endpoints
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      operationId: logoutUser
+      responses:
+        '204':
+          description: Logout successful
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/verify-email:
+    post:
+      tags:
+        - Authentication
+      summary: Verify email address
+      operationId: verifyEmail
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Email verified successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      operationId: resetPassword
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Password reset email sent
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # User endpoints
+  /users/profile:
+    get:
+      tags:
+        - Users
+      summary: Get current user profile
+      operationId: getCurrentUserProfile
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    
+    put:
+      tags:
+        - Users
+      summary: Update user profile
+      operationId: updateUserProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/verification:
+    post:
+      tags:
+        - Users
+      summary: Submit verification documents
+      operationId: submitVerification
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [accredited, kyc]
+                method:
+                  type: string
+                  enum: [income, net_worth]
+                documents:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '201':
+          description: Verification submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationStatus'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users/connections:
+    get:
+      tags:
+        - Users
+      summary: Get user connections
+      operationId: getUserConnections
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Connections retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionsList'
+
+    post:
+      tags:
+        - Users
+      summary: Send connection request
+      operationId: sendConnectionRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipientId:
+                  type: string
+                  format: uuid
+                message:
+                  type: string
+      responses:
+        '201':
+          description: Connection request sent
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users/messages:
+    get:
+      tags:
+        - Users
+      summary: Get user messages
+      operationId: getUserMessages
+      parameters:
+        - name: conversationId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Messages retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesList'
+
+    post:
+      tags:
+        - Users
+      summary: Send message
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # Property endpoints
+  /properties:
+    get:
+      tags:
+        - Properties
+      summary: List available properties
+      operationId: listProperties
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, renovating, sold]
+        - name: propertyType
+          in: query
+          schema:
+            type: string
+            enum: [multi_family, apartment_complex]
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: minInvestment
+          in: query
+          schema:
+            type: number
+        - name: propertyClass
+          in: query
+          schema:
+            type: string
+            enum: [A, B, C]
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Opportunities retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertiesList'
+
+  /properties/{propertyId}:
+    get:
+      tags:
+        - Properties
+      summary: Get property details
+      operationId: getPropertyById
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Opportunity found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /properties/{propertyId}/invest:
+    post:
+      tags:
+        - Investments
+      summary: Invest in property
+      operationId: investInProperty
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  minimum: 0
+      responses:
+        '201':
+          description: Interest expressed
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /properties/{propertyId}/virtual-tour:
+    get:
+      tags:
+        - VirtualTours
+      summary: Get property virtual tour
+      operationId: getVirtualTour
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Virtual tour data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VirtualTour'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /properties/{propertyId}/photos:
+    get:
+      tags:
+        - Properties
+      summary: Get property photos
+      operationId: getPropertyPhotos
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [exterior, interior, amenity, unit, aerial, renovation]
+      responses:
+        '200':
+          description: Photos retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotosList'
+
+  /properties/{propertyId}/financials:
+    get:
+      tags:
+        - Financials
+      summary: Get property financial performance
+      operationId: getPropertyFinancials
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [monthly, quarterly, annual]
+      responses:
+        '200':
+          description: Financial data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyFinancials'
+
+  /properties/{propertyId}/renovations:
+    get:
+      tags:
+        - Renovations
+      summary: Get renovation progress
+      operationId: getRenovationProgress
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Renovation data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenovationProject'
+
+  /investments/portfolio:
+    get:
+      tags:
+        - Investments
+      summary: Get user portfolio
+      operationId: getUserPortfolio
+      responses:
+        '200':
+          description: Portfolio retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Portfolio'
+
+  /investments/transactions:
+    get:
+      tags:
+        - Investments
+      summary: Get investment transactions
+      operationId: getTransactions
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [investment, distribution, fee]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Transactions retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsList'
+
+  /investments/statements:
+    get:
+      tags:
+        - Investments
+      summary: Get investment statements
+      operationId: getStatements
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+        - name: month
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Statements retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatementsList'
+
+  # Event endpoints
+  /events:
+    get:
+      tags:
+        - Events
+      summary: List events
+      operationId: listEvents
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [webinar, conference, meetup]
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [virtual, in_person, hybrid]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Events retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsList'
+
+  /events/{eventId}:
+    get:
+      tags:
+        - Events
+      summary: Get event details
+      operationId: getEventById
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Event found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events/{eventId}/register:
+    post:
+      tags:
+        - Events
+      summary: Register for event
+      operationId: registerForEvent
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dietaryRequirements:
+                  type: string
+                specialRequirements:
+                  type: string
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /events/{eventId}/checkin:
+    post:
+      tags:
+        - Events
+      summary: Check in to event
+      operationId: checkInToEvent
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Check-in successful
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # Document endpoints
+  /documents:
+    get:
+      tags:
+        - Documents
+      summary: List user documents
+      operationId: listDocuments
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Documents retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentsList'
+
+    post:
+      tags:
+        - Documents
+      summary: Upload document
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                type:
+                  type: string
+                category:
+                  type: string
+      responses:
+        '201':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /documents/{documentId}:
+    get:
+      tags:
+        - Documents
+      summary: Get document
+      operationId: getDocument
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Document found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Documents
+      summary: Delete document
+      operationId: deleteDocument
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Document deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Communication endpoints
+  /communications/notifications:
+    get:
+      tags:
+        - Communications
+      summary: Get notifications
+      operationId: getNotifications
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Notifications retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationsList'
+
+  /communications/notifications/{notificationId}/read:
+    put:
+      tags:
+        - Communications
+      summary: Mark notification as read
+      operationId: markNotificationRead
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /communications/preferences:
+    get:
+      tags:
+        - Communications
+      summary: Get communication preferences
+      operationId: getCommunicationPreferences
+      responses:
+        '200':
+          description: Preferences retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunicationPreferences'
+
+    put:
+      tags:
+        - Communications
+      summary: Update communication preferences
+      operationId: updateCommunicationPreferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunicationPreferences'
+      responses:
+        '200':
+          description: Preferences updated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    # Common schemas
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+      required:
+        - code
+        - message
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    # Auth schemas
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phoneNumber:
+          type: string
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        mfaCode:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    # User schemas
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+        bio:
+          type: string
+        company:
+          type: string
+        position:
+          type: string
+        location:
+          type: object
+          properties:
+            city:
+              type: string
+            state:
+              type: string
+            country:
+              type: string
+        investmentPreferences:
+          type: object
+          properties:
+            interests:
+              type: array
+              items:
+                type: string
+            rangeMin:
+              type: number
+            rangeMax:
+              type: number
+            riskTolerance:
+              type: string
+              enum: [conservative, moderate, aggressive]
+        verificationStatus:
+          type: string
+          enum: [pending, verified, rejected]
+        profileCompletionScore:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        bio:
+          type: string
+        company:
+          type: string
+        position:
+          type: string
+        location:
+          type: object
+        investmentPreferences:
+          type: object
+
+    VerificationStatus:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        status:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+
+    Connection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        connectedAt:
+          type: string
+          format: date-time
+
+    ConnectionsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connection'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        conversationId:
+          type: string
+          format: uuid
+        sender:
+          $ref: '#/components/schemas/UserProfile'
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+        readAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    MessagesList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    SendMessageRequest:
+      type: object
+      properties:
+        recipientId:
+          type: string
+          format: uuid
+        content:
+          type: string
+        conversationId:
+          type: string
+          format: uuid
+      required:
+        - content
+
+    # Investment schemas
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        propertyName:
+          type: string
+        address:
+          type: object
+          properties:
+            line1:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            zipCode:
+              type: string
+        propertyType:
+          type: string
+          enum: [multi_family, apartment_complex]
+        propertyClass:
+          type: string
+          enum: [A, B, C]
+        totalUnits:
+          type: integer
+        yearBuilt:
+          type: integer
+        currentNOI:
+          type: number
+        capRate:
+          type: number
+        occupancyRate:
+          type: number
+        targetIRR:
+          type: number
+        minimumInvestment:
+          type: number
+        amountRaised:
+          type: number
+        investorCount:
+          type: integer
+        status:
+          type: string
+          enum: [active, renovating, sold]
+        hasVirtualTour:
+          type: boolean
+        photoCount:
+          type: integer
+
+    PropertiesList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PropertyDetail:
+      allOf:
+        - $ref: '#/components/schemas/Property'
+        - type: object
+          properties:
+            executiveSummary:
+              type: string
+            investmentThesis:
+              type: string
+            proForma:
+              type: object
+            renovationPlan:
+              type: object
+            marketAnalysis:
+              type: object
+            amenities:
+              type: array
+              items:
+                type: string
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Document'
+
+    VirtualTour:
+      type: object
+      properties:
+        id:
+          type: string
+        propertyId:
+          type: string
+        tourType:
+          type: string
+          enum: [matterport, 360_photos, video]
+        tourUrl:
+          type: string
+        embedCode:
+          type: string
+        features:
+          type: object
+          properties:
+            hasDollhouse:
+              type: boolean
+            hasFloorPlan:
+              type: boolean
+            hasMeasurements:
+              type: boolean
+
+    PhotosList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              url:
+                type: string
+              thumbnailUrl:
+                type: string
+              category:
+                type: string
+              caption:
+                type: string
+
+    PropertyFinancials:
+      type: object
+      properties:
+        propertyId:
+          type: string
+        period:
+          type: string
+        noi:
+          type: number
+        grossIncome:
+          type: number
+        operatingExpenses:
+          type: number
+        occupancyRate:
+          type: number
+        averageRent:
+          type: number
+        rentCollection:
+          type: number
+
+    RenovationProject:
+      type: object
+      properties:
+        id:
+          type: string
+        propertyId:
+          type: string
+        projectName:
+          type: string
+        status:
+          type: string
+          enum: [planning, in_progress, completed]
+        completionPercentage:
+          type: integer
+        budgetedCost:
+          type: number
+        actualCost:
+          type: number
+        startDate:
+          type: string
+          format: date
+        expectedEndDate:
+          type: string
+          format: date
+        progressUpdates:
+          type: array
+          items:
+            type: object
+
+    Portfolio:
+      type: object
+      properties:
+        totalInvested:
+          type: number
+        totalValue:
+          type: number
+        totalReturns:
+          type: number
+        irr:
+          type: number
+        multiple:
+          type: number
+        holdings:
+          type: array
+          items:
+            type: object
+            properties:
+              opportunity:
+                $ref: '#/components/schemas/Opportunity'
+              amount:
+                type: number
+              currentValue:
+                type: number
+              returns:
+                type: number
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        amount:
+          type: number
+        description:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    TransactionsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Statement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        documentUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    StatementsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Statement'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # Event schemas
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        format:
+          type: string
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+        location:
+          type: object
+        maxAttendees:
+          type: integer
+        currentAttendees:
+          type: integer
+        registrationDeadline:
+          type: string
+          format: date-time
+
+    EventsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    EventDetail:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          properties:
+            agenda:
+              type: array
+              items:
+                type: object
+            speakers:
+              type: array
+              items:
+                type: object
+            virtualDetails:
+              type: object
+            materials:
+              type: array
+              items:
+                $ref: '#/components/schemas/Document'
+
+    Registration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        eventId:
+          type: string
+          format: uuid
+        status:
+          type: string
+        registrationType:
+          type: string
+        checkedIn:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    # Document schemas
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+        fileSize:
+          type: integer
+        fileType:
+          type: string
+        downloadUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    DocumentsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # Communication schemas
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        actionUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    NotificationsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    CommunicationPreferences:
+      type: object
+      properties:
+        emailNotifications:
+          type: boolean
+        smsNotifications:
+          type: boolean
+        pushNotifications:
+          type: boolean
+        newsletterSubscription:
+          type: boolean
+        eventReminders:
+          type: boolean
+        investmentUpdates:
+          type: boolean
+        messageNotifications:
+          type: boolean

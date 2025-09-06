@@ -1,0 +1,142 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# Production builds
+dist/
+dist-ssr/
+build/
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*~
+
+# Testing
+coverage/
+*.lcov
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+postgres-data/
+
+# Prisma
+prisma/migrations/dev/
+
+# Uploads & Media
+uploads/
+public/uploads/
+temp/
+tmp/
+
+# Build artifacts
+*.pid
+*.seed
+*.pid.lock
+.cache/
+.parcel-cache/
+.next/
+out/
+
+# TypeScript
+*.tsbuildinfo
+.tsbuildinfo
+
+# React Native
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Python (if any scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Certificates
+*.pem
+*.crt
+*.key
+
+# IDE specific files
+.vscode/
+.idea/
+*.iml
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+.Trash-*
+
+# Backup files
+*.bak
+*.backup
+*~
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Sensitive data - NEVER COMMIT
+planning/.env.local
+secrets/
+private/
+credentials/
