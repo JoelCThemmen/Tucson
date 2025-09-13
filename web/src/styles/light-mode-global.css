@@ -1,0 +1,106 @@
+/* Light Mode Global Background - Ensures consistent gray background across all pages */
+
+/* Very light off-white background for light mode */
+:root:not(.dark) html {
+  background-color: #FAFBFC !important; /* Very light off-white */
+}
+
+:root:not(.dark) body {
+  background-color: #FAFBFC !important; /* Very light off-white */
+  min-height: 100vh;
+}
+
+/* Ensure the root div also has the background */
+:root:not(.dark) #root {
+  background-color: transparent;
+  min-height: 100vh;
+}
+
+/* Main content area */
+:root:not(.dark) .min-h-screen {
+  background-color: transparent !important;
+}
+
+/* Override any white backgrounds on main containers */
+:root:not(.dark) .bg-white:not([class*="card"]):not([class*="modal"]):not(nav):not(header):not(button):not(input):not(select):not(textarea) {
+  background-color: transparent !important;
+}
+
+/* Specific page containers */
+:root:not(.dark) [class*="Page"],
+:root:not(.dark) [class*="page"] {
+  background-color: transparent !important;
+}
+
+/* Layout containers */
+:root:not(.dark) .flex.flex-col.min-h-screen {
+  background-color: transparent !important;
+}
+
+/* Main layout wrapper */
+:root:not(.dark) .flex-1 {
+  background-color: transparent !important;
+}
+
+/* Ensure all divs that are direct children of body maintain transparency */
+:root:not(.dark) body > div {
+  background-color: transparent;
+}
+
+/* Remove backgrounds from container divs */
+:root:not(.dark) .container {
+  background-color: transparent !important;
+}
+
+/* Override any inline styles trying to set white background */
+:root:not(.dark) [style*="background-color: white"],
+:root:not(.dark) [style*="background-color:#fff"],
+:root:not(.dark) [style*="background-color: #fff"],
+:root:not(.dark) [style*="background-color:white"],
+:root:not(.dark) [style*="background-color: rgb(255"],
+:root:not(.dark) [style*="background:white"],
+:root:not(.dark) [style*="background: white"],
+:root:not(.dark) [style*="background:#fff"],
+:root:not(.dark) [style*="background: #fff"] {
+  background-color: #FAFBFC !important;
+}
+
+/* Specific overrides for Tailwind gray classes that might be used for backgrounds */
+:root:not(.dark) .bg-gray-50 {
+  background-color: #FAFBFC !important;  /* Very light off-white */
+}
+
+:root:not(.dark) .bg-gray-100 {
+  background-color: #F8F9FA !important;  /* Light off-white */
+}
+
+/* Cards that use bg-gray-50 inside other elements should also show the off-white */
+:root:not(.dark) div.bg-gray-50:not(.rounded-lg):not(.rounded-xl):not(.rounded-2xl):not(.shadow):not(.border) {
+  background-color: #FAFBFC !important;
+}
+
+/* Keep cards, modals, dropdowns white */
+:root:not(.dark) .bg-white.rounded-lg,
+:root:not(.dark) .bg-white.rounded-xl,
+:root:not(.dark) .bg-white.rounded-2xl,
+:root:not(.dark) .bg-white.shadow,
+:root:not(.dark) .bg-white.shadow-sm,
+:root:not(.dark) .bg-white.shadow-md,
+:root:not(.dark) .bg-white.shadow-lg,
+:root:not(.dark) .bg-white.shadow-xl,
+:root:not(.dark) .bg-white.border,
+:root:not(.dark) [role="dialog"] .bg-white,
+:root:not(.dark) [role="menu"] .bg-white,
+:root:not(.dark) .dropdown .bg-white,
+:root:not(.dark) .modal .bg-white,
+:root:not(.dark) .card,
+:root:not(.dark) .panel {
+  background-color: #FFFFFF !important;
+}
+
+/* Navigation should remain white */
+:root:not(.dark) nav,
+:root:not(.dark) header,
+:root:not(.dark) .navbar {
+  background-color: #FFFFFF !important;
+}

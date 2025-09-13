@@ -1,0 +1,120 @@
+# Claude Code Instructions for Tucson Project
+
+## CRITICAL UI/UX REQUIREMENTS - MUST CHECK BEFORE ANY COMMIT
+
+### 1. VISUAL TESTING CHECKLIST (RUN EVERY TIME)
+Before marking ANY UI task complete, you MUST:
+
+1. **Run Playwright visual tests with screenshots**
+   - Take full-page screenshots
+   - Test on desktop AND mobile viewports
+   - Actually LOOK at the screenshots using the Read tool
+
+2. **Check for Layout Issues**
+   - [ ] No text hidden under fixed navigation bars (add pt-20 or pt-24 for fixed navs)
+   - [ ] No content cut off at edges
+   - [ ] Proper spacing between all elements
+   - [ ] No overlapping elements
+   - [ ] All text is readable and has proper contrast
+
+3. **Test Responsive Design**
+   - [ ] Mobile menu works and is accessible
+   - [ ] Content reflows properly on small screens
+   - [ ] Touch targets are at least 44x44px on mobile
+   - [ ] No horizontal scrolling on mobile
+
+4. **Check Component Completeness**
+   - [ ] Page has actual content (not blank or placeholder)
+   - [ ] Forms have all necessary fields
+   - [ ] Buttons actually do something
+   - [ ] Error states are handled
+   - [ ] Loading states exist
+
+### 2. AUTOMATED CHECKS TO RUN
+
+```bash
+# ALWAYS run these tests before saying "done"
+npm test -- --grep "visual"
+npm test -- --grep "layout"
+npm test -- --grep "responsive"
+
+# Take screenshots for manual review
+npx playwright test --headed --screenshots=on
+```
+
+### 3. COMMON MISTAKES TO AVOID
+
+1. **Fixed Navigation Overlap**
+   - Problem: Content hidden under fixed nav bars
+   - Solution: Use pt-20 or pt-24 (not pt-12) when nav is fixed
+   - Check: First heading should be fully visible
+
+2. **Empty Components**
+   - Problem: Components render but have no content
+   - Solution: Always add mock data for development
+   - Check: Word count should be > 50 for content pages
+
+3. **Missing Authentication Handling**
+   - Problem: Pages redirect or show sign-in when they shouldn't
+   - Solution: Use mock auth provider in development
+   - Check: Development mode should auto-sign in
+
+4. **Broken Responsive Design**
+   - Problem: Mobile layout broken or inaccessible
+   - Solution: Test at 375px, 768px, and 1280px widths
+   - Check: Mobile menu should be visible and functional
+
+### 4. PROJECT-SPECIFIC REQUIREMENTS
+
+- **Navigation Bar**: Fixed position, 64px height (h-16)
+- **Main Content**: Must have pt-20 or pt-24 to clear nav
+- **Verification Pages**: Must show actual forms and content
+- **Mock Data**: Always provide realistic mock data in dev mode
+- **Error Handling**: Never show blank pages or unhandled errors
+
+### 5. TESTING PHILOSOPHY
+
+**"If you haven't seen it work, it doesn't work"**
+
+- NEVER trust that code works without visual verification
+- ALWAYS take and review screenshots
+- ALWAYS test on multiple viewport sizes
+- ALWAYS check for overlapping elements
+- ALWAYS ensure text is fully visible
+
+### 6. WHEN IN DOUBT
+
+If unsure about UI implementation:
+1. Take a screenshot first
+2. Check for obvious issues (overlap, cutoff, blank)
+3. Test interaction (click buttons, fill forms)
+4. Test responsive (resize window)
+5. Only then mark as complete
+
+## AGENT RECOMMENDATIONS
+
+Consider using specialized agents for:
+- Visual regression testing
+- Accessibility checking
+- Performance monitoring
+- Cross-browser testing
+
+## FILES TO ALWAYS CHECK
+
+When modifying UI:
+1. `/web/src/components/Navigation.tsx` - Check nav height
+2. Page components - Check padding-top values
+3. `/web/src/App.tsx` - Check route protection
+4. `/web/tailwind.config.js` - Check spacing scale
+
+## DEVELOPMENT WORKFLOW
+
+1. Make changes
+2. Run visual tests
+3. Take screenshots
+4. Review screenshots with Read tool
+5. Fix any issues found
+6. Repeat until perfect
+7. Only then commit
+
+Remember: **Quality > Speed**. It's better to catch issues before the user does.

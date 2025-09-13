@@ -50,7 +50,6 @@ Tucson is a comprehensive investment platform specializing in:
 
 ### Infrastructure
 - **Docker** - Containerization (optional)
-- **AWS S3** - Media storage
 - **SendGrid** - Email service
 - **Matterport** - Virtual tours
 

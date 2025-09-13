@@ -1,0 +1,233 @@
+/* Light Mode Background System - Creates visual grouping similar to dark mode */
+
+/* Main page backgrounds - subtle gradient for depth */
+:root:not(.dark) .bg-gray-50 {
+  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+}
+
+/* Content container backgrounds - slightly elevated appearance */
+:root:not(.dark) [class*="max-w-"][class*="mx-auto"] {
+  position: relative;
+}
+
+/* Add subtle background containers to main content areas */
+:root:not(.dark) main > div > div[class*="max-w-"],
+:root:not(.dark) section > div[class*="max-w-"] {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(248, 250, 252, 0.3));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+/* Dashboard and app pages - content grouping backgrounds */
+:root:not(.dark) .bg-gray-50 > div[class*="max-w-"] {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Grid containers get subtle backgrounds */
+:root:not(.dark) [class*="grid"][class*="gap-"] {
+  background: linear-gradient(to bottom, rgba(248, 250, 252, 0.5), transparent);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+/* Card groupings */
+:root:not(.dark) .space-y-4,
+:root:not(.dark) .space-y-6,
+:root:not(.dark) .space-y-8 {
+  background: rgba(248, 250, 252, 0.4);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(226, 232, 240, 0.3);
+}
+
+/* Nested cards should not have additional backgrounds */
+:root:not(.dark) .space-y-4 .space-y-4,
+:root:not(.dark) .space-y-6 .space-y-6,
+:root:not(.dark) .space-y-8 .space-y-8 {
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+/* Section wrappers */
+:root:not(.dark) section {
+  position: relative;
+}
+
+:root:not(.dark) section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.8) 0%,
+    rgba(241, 245, 249, 0.4) 50%,
+    rgba(248, 250, 252, 0.8) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Form sections get contained backgrounds */
+:root:not(.dark) form {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.7));
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+/* Nested forms should not double up */
+:root:not(.dark) form form {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+}
+
+/* List containers */
+:root:not(.dark) ul[class*="space-y"],
+:root:not(.dark) ol[class*="space-y"] {
+  background: rgba(248, 250, 252, 0.3);
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+/* Tab panels and content areas */
+:root:not(.dark) [role="tabpanel"],
+:root:not(.dark) [class*="tab-content"] {
+  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.6));
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(229, 231, 235, 0.4);
+}
+
+/* Modal content areas */
+:root:not(.dark) [role="dialog"] > div {
+  background: linear-gradient(to bottom, white, rgba(248, 250, 252, 0.95));
+}
+
+/* Sidebar and navigation areas */
+:root:not(.dark) aside,
+:root:not(.dark) [class*="sidebar"] {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+  border-right: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+/* Header content grouping */
+:root:not(.dark) header > div {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+/* Footer content grouping */
+:root:not(.dark) footer {
+  background: linear-gradient(to top, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.8));
+  border-top: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+/* Dashboard specific backgrounds */
+:root:not(.dark) [class*="Dashboard"] > div > div {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* Profile page specific */
+:root:not(.dark) [class*="Profile"] .max-w-7xl {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.5));
+  border-radius: 2rem;
+  padding: 2rem;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.05);
+}
+
+/* Settings page grouping */
+:root:not(.dark) [class*="Settings"] section {
+  background: rgba(248, 250, 252, 0.5);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+/* Verification pages */
+:root:not(.dark) [class*="Verification"] .max-w-7xl,
+:root:not(.dark) [class*="Verification"] .max-w-4xl {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.7));
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(229, 231, 235, 0.4);
+}
+
+/* Stats and metrics sections */
+:root:not(.dark) [class*="stats"],
+:root:not(.dark) [class*="metrics"] {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.7), rgba(241, 245, 249, 0.5));
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+/* Alert and notification backgrounds */
+:root:not(.dark) [role="alert"] {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+  border: 1px solid currentColor;
+  opacity: 0.95;
+}
+
+/* Table containers */
+:root:not(.dark) [class*="overflow-"][class*="table"],
+:root:not(.dark) .table-container {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Chart and graph containers */
+:root:not(.dark) [class*="chart"],
+:root:not(.dark) [class*="graph"] {
+  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.85));
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(229, 231, 235, 0.4);
+}
+
+/* Activity feed containers */
+:root:not(.dark) [class*="activity"],
+:root:not(.dark) [class*="feed"] {
+  background: rgba(248, 250, 252, 0.4);
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+/* Ensure text remains readable on new backgrounds */
+:root:not(.dark) [class*="text-gray-"] {
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Hover states for grouped elements */
+:root:not(.dark) [class*="hover:bg-"]:hover {
+  background-color: rgba(241, 245, 249, 0.8) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Focus states with better visibility */
+:root:not(.dark) *:focus-within {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Smooth transitions for all background changes */
+:root:not(.dark) * {
+  transition: background-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}

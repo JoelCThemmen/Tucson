@@ -1,0 +1,51 @@
+/* Import light mode enhancements - ONLY affects light mode, preserves dark mode */
+@import './styles/light-mode-global.css';
+@import './styles/light-mode-theme.css';
+@import './styles/light-mode-enhancements.css';
+@import './styles/light-mode-backgrounds.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply antialiased;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-400 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-500;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent;
+  }
+  
+  .bg-glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+  
+  .bg-glass-dark {
+    @apply bg-neutral-900/80 backdrop-blur-md;
+  }
+}

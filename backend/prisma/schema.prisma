@@ -1,0 +1,227 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(uuid())
+  clerkUserId String     @unique
+  email       String     @unique
+  firstName   String?
+  lastName    String?
+  role        UserRole   @default(INVESTOR)
+  status      UserStatus @default(ACTIVE)
+  
+  // Demographic Information
+  dateOfBirth DateTime?
+  gender      Gender?
+  ethnicity   String?
+  country     String?
+  state       String?
+  city        String?
+  postalCode  String?
+  
+  // Contact Information  
+  phoneNumber String?
+  alternateEmail String?
+  
+  // Professional Information
+  occupation  String?
+  employer    String?
+  industry    String?
+  yearsExperience Int?
+  
+  // Admin fields
+  addedBy     String?    // ID of admin who added this user
+  notes       String?    // Internal notes about the user
+  tags        String[]   @default([]) // Tags for categorization
+  
+  // Account activation fields
+  activationToken   String?   @unique
+  activationExpiry  DateTime?
+  passwordHash      String?   // For users not using Clerk auth
+  isEmailVerified   Boolean   @default(false)
+  invitedAt         DateTime? // When the invitation was sent
+  activatedAt       DateTime? // When the account was activated
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  profile       UserProfile?
+  auditLogs     AuditLog[]
+  verifications AccreditationVerification[]
+}
+
+model UserProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  bio         String?
+  avatarUrl   String?
+  phone       String?
+  location    String?
+  company     String?
+  position    String?
+  website     String?
+  linkedIn    String?
+  
+  // New profile fields
+  aboutMe               String?
+  investmentPreferences String?
+  riskTolerance        String?
+  
+  // Preferences stored as JSON
+  preferences Json?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  action    String   // e.g., "profile.update", "user.login", etc.
+  details   Json?    // Additional details about the action
+  ipAddress String?
+  userAgent String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId, createdAt])
+}
+
+// Accredited Investor Verification Models
+model AccreditationVerification {
+  id                String                    @id @default(uuid())
+  userId            String
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Verification Details
+  verificationType  VerificationType          // INCOME or NET_WORTH
+  status            VerificationStatus        @default(PENDING)
+  
+  // Income Verification (if applicable)
+  annualIncome      Float?
+  incomeSource      String?
+  
+  // Net Worth Verification (if applicable)
+  netWorth          Float?
+  liquidNetWorth    Float?
+  
+  // Administrative
+  submittedAt       DateTime                  @default(now())
+  reviewedAt        DateTime?
+  reviewedBy        String?                   // Admin user ID
+  reviewerNotes     String?
+  rejectionReason   String?
+  
+  // Compliance
+  attestation       Boolean                   @default(false) // User attests information is accurate
+  consentToVerify   Boolean                   @default(false) // User consents to verification
+  
+  // Document References
+  documents         VerificationDocument[]
+  
+  // Expiration (verification valid for 1 year)
+  expiresAt         DateTime?
+  
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  
+  @@index([userId, status])
+  @@index([status, submittedAt])
+}
+
+model VerificationDocument {
+  id                String                    @id @default(uuid())
+  verificationId    String
+  verification      AccreditationVerification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+  
+  // Document Details
+  documentType      DocumentType
+  fileName          String
+  fileSize          Int                       // Size in bytes
+  mimeType          String
+  
+  // Document Data - stored directly in database
+  fileData          Bytes                     // Encrypted document data
+  encryptionIV      String                    // Initialization vector for decryption
+  checksum          String                    // SHA-256 hash for integrity
+  
+  // Scanning Results
+  virusScanStatus   ScanStatus                @default(PENDING)
+  virusScanDate     DateTime?
+  virusScanResult   String?
+  
+  // Lifecycle
+  uploadedAt        DateTime                  @default(now())
+  deletedAt         DateTime?                 // Soft delete for compliance
+  scheduledDeletion DateTime                  // Auto-delete after 30 days
+  
+  @@index([verificationId])
+}
+
+// Enums for Verification
+enum VerificationType {
+  INCOME
+  NET_WORTH
+}
+
+enum VerificationStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+  RESUBMISSION_REQUIRED
+}
+
+enum DocumentType {
+  W2
+  TAX_RETURN
+  PAY_STUB
+  BANK_STATEMENT
+  INVESTMENT_STATEMENT
+  CPA_LETTER
+  OTHER
+}
+
+enum ScanStatus {
+  PENDING
+  CLEAN
+  INFECTED
+  ERROR
+}
+
+// User roles for access control
+enum UserRole {
+  INVESTOR    // Default role - can submit verifications, view own data
+  ADMIN       // Can review verifications, manage users
+  SUPER_ADMIN // System owner - full access (future use)
+}
+
+// User account status
+enum UserStatus {
+  ACTIVE      // User can access the system
+  INACTIVE    // User account is disabled
+  PENDING     // User account pending activation
+  SUSPENDED   // User account temporarily suspended
+}
+
+// Gender options
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
